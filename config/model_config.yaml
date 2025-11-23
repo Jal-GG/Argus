@@ -1,0 +1,117 @@
+# Model Configuration
+# Settings for all ML models used in the system
+
+detection:
+  # YOLO Configuration
+  model_type: "yolov8"  # yolov8, yolov9, detectron2
+  model_size: "m"  # n (nano), s (small), m (medium), l (large), x (xlarge)
+  model_path: "src/models/yolo/yolov8m.pt"
+
+  # Detection parameters
+  confidence_threshold: 0.5
+  iou_threshold: 0.45
+  classes: [0]  # 0 = person in COCO dataset
+
+  # Device settings
+  device: "cuda"  # cuda, cpu, mps (for Apple Silicon)
+  half_precision: true  # Use FP16 for faster inference
+
+  # Performance
+  input_size: 640
+  batch_size: 1
+  max_det: 100  # Maximum detections per image
+
+  # TensorRT optimization (optional)
+  use_tensorrt: false
+  tensorrt_model_path: "src/models/yolo/yolov8m.engine"
+
+tracking:
+  # DeepSORT Configuration
+  tracker_type: "deepsort"  # deepsort, bytetrack, sort
+
+  # Tracking parameters
+  max_age: 30  # Max frames to keep track alive without detection
+  n_init: 3  # Min frames to confirm track
+  max_iou_distance: 0.7
+  max_cosine_distance: 0.3
+  nn_budget: 100  # Max samples per class in feature gallery
+
+  # Feature extraction for tracking
+  embedder: "mobilenet"  # mobilenet, resnet50, osnet
+  embedder_gpu: true
+  feature_dim: 512
+
+reid:
+  # Re-Identification Model
+  model_type: "osnet"  # osnet, resnet50, fastreid
+  model_name: "osnet_x1_0"
+  model_path: "src/models/reid/osnet_x1_0.pth"
+
+  # Re-ID parameters
+  device: "cuda"
+  input_size: [256, 128]  # height, width
+  feature_dim: 512
+
+  # Normalization
+  normalize_features: true
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
+
+  # Global ID matching
+  similarity_threshold: 0.6  # Min similarity to match (0-1)
+  gallery_size: 50  # Max features to keep per global ID
+  update_gallery: true
+
+  # Spatial-temporal constraints
+  use_spatial_constraint: true
+  max_distance_between_cameras: 50.0  # meters
+  use_temporal_constraint: true
+  max_time_gap: 60  # seconds
+
+face_recognition:
+  # Optional: Face Recognition for additional verification
+  enabled: false
+  model_type: "facenet"  # facenet, arcface, insightface
+  model_path: "src/models/face/facenet.pth"
+
+  # Face detection
+  face_detector: "mtcnn"  # mtcnn, retinaface
+  min_face_size: 40
+  confidence_threshold: 0.9
+
+  # Face matching
+  distance_threshold: 0.6
+  device: "cuda"
+
+# Performance settings
+performance:
+  # Multi-threading
+  num_workers: 4
+  use_multiprocessing: false
+
+  # Batching
+  enable_batch_processing: false
+  batch_size: 4
+  batch_timeout: 0.1  # seconds
+
+  # Frame skipping
+  enable_frame_skip: false
+  skip_frames: 2  # Process every Nth frame
+
+  # Memory management
+  clear_cache_interval: 100  # frames
+  max_memory_usage: 8000  # MB
+
+# Model download settings
+model_downloads:
+  auto_download: true
+  download_path: "src/models/"
+
+  models:
+    - name: "YOLOv8m"
+      url: "https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8m.pt"
+      path: "src/models/yolo/yolov8m.pt"
+
+    - name: "OSNet"
+      url: "auto"  # torchreid will download automatically
+      path: "src/models/reid/osnet_x1_0.pth"

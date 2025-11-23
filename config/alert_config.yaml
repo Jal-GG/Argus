@@ -1,0 +1,228 @@
+# Alert Configuration
+# Configure notification channels and alert settings
+
+# Alert channels to enable
+enabled_channels:
+  - email
+  - webhook
+  # - sms
+  # - telegram
+  # - push
+
+# Email Configuration
+email:
+  enabled: true
+  smtp_server: "smtp.gmail.com"
+  smtp_port: 587
+  use_tls: true
+
+  # Credentials (use environment variables in production)
+  username: "${EMAIL_USERNAME}"
+  password: "${EMAIL_PASSWORD}"
+
+  # Recipients
+  from_email: "security@yourdomain.com"
+  to_emails:
+    - "admin@yourdomain.com"
+    - "security@yourdomain.com"
+
+  # Email settings
+  include_snapshot: true
+  max_snapshot_size: 500  # KB
+  subject_prefix: "[Security Alert]"
+
+  # Templates
+  template_path: "src/alerts/templates/email_alert.html"
+
+# SMS Configuration (Twilio)
+sms:
+  enabled: false
+  provider: "twilio"
+
+  # Twilio credentials (use environment variables)
+  account_sid: "${TWILIO_ACCOUNT_SID}"
+  auth_token: "${TWILIO_AUTH_TOKEN}"
+
+  from_number: "+1234567890"
+  to_numbers:
+    - "+1234567891"
+    - "+1234567892"
+
+  # SMS settings
+  max_message_length: 160
+  include_link: true  # Include link to dashboard
+
+# Webhook Configuration
+webhook:
+  enabled: true
+
+  endpoints:
+    - name: "Primary Webhook"
+      url: "https://your-server.com/api/alerts"
+      method: "POST"
+      headers:
+        Authorization: "Bearer ${WEBHOOK_TOKEN}"
+        Content-Type: "application/json"
+      timeout: 10
+      retry_attempts: 3
+
+    - name: "Backup Webhook"
+      url: "https://backup-server.com/api/alerts"
+      method: "POST"
+      timeout: 5
+      retry_attempts: 2
+
+  # Payload format
+  payload_format: "json"
+  include_snapshot: true
+  snapshot_encoding: "base64"  # base64 or url
+
+# Telegram Bot Configuration
+telegram:
+  enabled: false
+
+  # Bot credentials (use environment variables)
+  bot_token: "${TELEGRAM_BOT_TOKEN}"
+
+  # Chat/Channel IDs
+  chat_ids:
+    - 123456789
+    - -987654321  # Negative for groups/channels
+
+  # Settings
+  send_photo: true
+  send_location: false
+  parse_mode: "HTML"  # HTML or Markdown
+
+# Push Notifications (Firebase Cloud Messaging)
+push:
+  enabled: false
+
+  # FCM credentials
+  fcm_server_key: "${FCM_SERVER_KEY}"
+
+  # Device tokens
+  device_tokens:
+    - "device_token_1"
+    - "device_token_2"
+
+  # Notification settings
+  priority: "high"
+  sound: "default"
+
+# Alert Rules & Filtering
+alert_rules:
+  # Minimum severity to send alerts
+  min_severity: "medium"  # low, medium, high, critical
+
+  # Cooldown period (seconds) - prevent duplicate alerts
+  cooldown_period: 60
+
+  # Alert throttling
+  max_alerts_per_minute: 10
+  max_alerts_per_hour: 100
+
+  # Time-based filtering
+  quiet_hours:
+    enabled: false
+    start: "23:00"
+    end: "07:00"
+    exclude_severities: ["critical"]  # Still send critical alerts
+
+  # Alert types to enable
+  enabled_alert_types:
+    - restricted_zone_entry
+    - required_zone_miss
+    - loitering
+    - speed_anomaly
+    - after_hours_entry
+    - face_not_recognized
+    - path_deviation
+
+# Alert Severity Mapping
+severity_mapping:
+  restricted_zone_entry: "high"
+  required_zone_miss: "medium"
+  loitering: "low"
+  speed_anomaly: "medium"
+  after_hours_entry: "high"
+  face_not_recognized: "medium"
+  path_deviation: "low"
+  suspicious_behavior: "high"
+
+# Alert Content Templates
+templates:
+  restricted_zone_entry: |
+    ALERT: Unauthorized Zone Entry
+    Person ID: {global_id}
+    Zone: {zone_name}
+    Time: {timestamp}
+    Camera: {camera_id}
+    Action: Person entered restricted area without authorization
+
+  required_zone_miss: |
+    ALERT: Required Destination Not Reached
+    Person ID: {global_id}
+    Expected Zone: {zone_name}
+    Time Elapsed: {elapsed_time}s
+    Last Seen: {camera_id}
+    Action: Person did not reach required destination
+
+  loitering: |
+    ALERT: Loitering Detected
+    Person ID: {global_id}
+    Zone: {zone_name}
+    Dwell Time: {dwell_time}s
+    Location: {camera_id}
+    Action: Person stayed in area longer than allowed
+
+  speed_anomaly: |
+    ALERT: Abnormal Movement Speed
+    Person ID: {global_id}
+    Speed: {speed} m/s
+    Location: {camera_id}
+    Time: {timestamp}
+    Action: Person moving at unusual speed (running)
+
+# Alert Delivery Settings
+delivery:
+  # Retry settings
+  max_retries: 3
+  retry_delay: 5  # seconds
+  exponential_backoff: true
+
+  # Async delivery
+  use_async: true
+  queue_size: 1000
+
+  # Fallback channel
+  fallback_enabled: true
+  fallback_channel: "email"  # If primary channel fails
+
+# Alert History & Storage
+storage:
+  # Save alerts to database
+  save_to_database: true
+
+  # Keep alert history
+  retention_days: 90
+
+  # Export alerts
+  export_enabled: false
+  export_path: "data/output/alerts/"
+  export_format: "json"  # json, csv
+
+# Testing & Debug
+debug:
+  # Test mode - don't actually send alerts
+  test_mode: false
+
+  # Send test alerts on startup
+  send_test_alerts: false
+
+  # Log all alerts
+  log_alerts: true
+  log_path: "logs/alerts.log"
+
+  # Alert preview
+  preview_mode: false  # Show alerts in console instead of sending

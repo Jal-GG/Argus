@@ -1,0 +1,145 @@
+# Zone Configuration
+# Define zones on floor plans for rule-based tracking
+
+zones:
+  # Floor 0 (Ground Floor)
+  floor_0:
+    floor_plan: "data/floor_plans/floor_0.png"
+    scale: 0.05  # meters per pixel
+
+    zones:
+      # Main Entrance Zone
+      - name: "Main Entrance"
+        type: "safe"
+        polygon:
+          - [100, 200]
+          - [300, 200]
+          - [300, 400]
+          - [100, 400]
+        color: [255, 255, 0]  # Cyan (BGR)
+        rules:
+          - type: "entry_point"
+            description: "Primary entry point for visitors"
+
+      # Lobby Zone
+      - name: "Lobby"
+        type: "safe"
+        polygon:
+          - [320, 180]
+          - [600, 180]
+          - [600, 450]
+          - [320, 450]
+        color: [0, 255, 0]  # Green (BGR)
+        rules:
+          - type: "transit"
+            description: "General waiting area"
+
+      # Reception Desk
+      - name: "Reception"
+        type: "required"
+        polygon:
+          - [400, 250]
+          - [500, 250]
+          - [500, 350]
+          - [400, 350]
+        color: [0, 255, 0]  # Green (BGR)
+        rules:
+          - type: "required_visit"
+            timeout: 300  # Seconds - must visit within 5 minutes
+            description: "Visitors must check in at reception"
+
+      # Security Office
+      - name: "Security Office"
+        type: "restricted"
+        polygon:
+          - [50, 50]
+          - [150, 50]
+          - [150, 150]
+          - [50, 150]
+        color: [0, 0, 255]  # Red (BGR)
+        rules:
+          - type: "restricted_access"
+            allowed_roles: ["security", "admin"]
+            description: "Staff only area"
+
+      # Server Room
+      - name: "Server Room"
+        type: "restricted"
+        polygon:
+          - [650, 100]
+          - [750, 100]
+          - [750, 200]
+          - [650, 200]
+        color: [0, 0, 255]  # Red (BGR)
+        rules:
+          - type: "restricted_access"
+            allowed_roles: ["it_admin"]
+          - type: "loitering_detection"
+            max_dwell_time: 120  # Seconds
+            description: "Alert if person stays too long"
+
+      # Parking Area
+      - name: "Parking"
+        type: "safe"
+        polygon:
+          - [800, 300]
+          - [1000, 300]
+          - [1000, 500]
+          - [800, 500]
+        color: [255, 255, 0]  # Cyan (BGR)
+
+  # Floor 1
+  floor_1:
+    floor_plan: "data/floor_plans/floor_1.png"
+    scale: 0.05  # meters per pixel
+
+    zones:
+      # Corridor
+      - name: "Corridor 1"
+        type: "safe"
+        polygon:
+          - [100, 200]
+          - [900, 200]
+          - [900, 300]
+          - [100, 300]
+        color: [255, 255, 0]  # Cyan (BGR)
+
+      # Office Area
+      - name: "Office Area"
+        type: "restricted"
+        polygon:
+          - [150, 350]
+          - [450, 350]
+          - [450, 550]
+          - [150, 550]
+        color: [0, 165, 255]  # Orange (BGR)
+        rules:
+          - type: "restricted_access"
+            allowed_roles: ["employee", "admin"]
+
+# Global zone rules
+global_rules:
+  # Speed anomaly detection
+  - type: "speed_anomaly"
+    max_speed: 3.0  # meters per second
+    description: "Alert if person moves too fast (running)"
+
+  # Loitering in general areas
+  - type: "general_loitering"
+    max_dwell_time: 600  # 10 minutes
+    exclude_zones: ["Lobby", "Parking"]
+    description: "Alert if person stays too long in one area"
+
+  # Wrong direction detection
+  - type: "wrong_direction"
+    enabled: false
+    description: "Alert if person moves in unexpected direction"
+
+  # Unauthorized entry after hours
+  - type: "after_hours_entry"
+    enabled: true
+    restricted_hours:
+      start: "22:00"
+      end: "06:00"
+    allowed_roles: ["security", "admin"]
+    description: "Alert for entries during restricted hours"

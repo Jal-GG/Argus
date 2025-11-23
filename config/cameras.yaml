@@ -1,0 +1,60 @@
+# Camera Configuration
+# Define all CCTV cameras in your surveillance system
+
+cameras:
+  # Example Camera 1 - RTSP IP Camera
+  - id: "cam_001"
+    name: "Main Entrance"
+    source: "rtsp://admin:password@192.168.1.10:554/stream"
+    fps: 15
+    resolution: [1920, 1080]
+    location: "Building A - Ground Floor"
+    floor_id: "floor_0"
+    enabled: true
+
+  # Example Camera 2 - Another IP Camera
+  - id: "cam_002"
+    name: "Lobby"
+    source: "rtsp://admin:password@192.168.1.11:554/stream"
+    fps: 15
+    resolution: [1920, 1080]
+    location: "Building A - Ground Floor"
+    floor_id: "floor_0"
+    enabled: true
+
+  # Example Camera 3 - Corridor
+  - id: "cam_003"
+    name: "Corridor 1"
+    source: "rtsp://admin:password@192.168.1.12:554/stream"
+    fps: 15
+    resolution: [1920, 1080]
+    location: "Building A - 1st Floor"
+    floor_id: "floor_1"
+    enabled: true
+
+  # Example Camera 4 - USB Camera (for testing)
+  - id: "cam_004"
+    name: "Test USB Camera"
+    source: 0  # Device index
+    fps: 30
+    resolution: [1280, 720]
+    location: "Testing Area"
+    floor_id: "floor_0"
+    enabled: false
+
+  # Example Camera 5 - Video File (for testing/demo)
+  - id: "cam_005"
+    name: "Demo Video"
+    source: "data/videos/sample.mp4"
+    fps: 30
+    resolution: [1920, 1080]
+    location: "Virtual"
+    floor_id: "floor_0"
+    enabled: false
+
+# Global camera settings
+settings:
+  buffer_size: 30  # Max frames to buffer per camera
+  reconnect_delay: 5  # Seconds to wait before reconnecting
+  max_reconnect_attempts: -1  # -1 for infinite
+  frame_drop_threshold: 0.5  # Drop frames if buffer > 50% full
