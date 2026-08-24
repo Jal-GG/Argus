@@ -81,3 +81,13 @@ config/calibration_*.yaml
 
 # OS
 Thumbs.db
+
+# ML model weights (auto-downloaded at runtime)
+*.pt
+*.pth
+*.engine
+*.onnx
+
+# Demo/sample media
+data/videos/
+!data/videos/.gitkeep

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Surveillance Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>🎥 Surveillance — Live Floor Plan</h1>
+    <div id="stats">
+      <span class="stat">People: <b id="stat-people">–</b></span>
+      <span class="stat">Tracks: <b id="stat-tracks">–</b></span>
+      <span class="stat alert-count">Alerts: <b id="stat-alerts">0</b></span>
+      <span class="stat muted" id="stat-cameras"></span>
+      <span class="stat muted"><span id="conn-dot" class="dot" style="background:#888"></span> <span id="conn-text">connecting…</span></span>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>Floor Plan <span class="muted" id="floor-id"></span></h2>
+      <div class="canvas-wrap">
+        <canvas id="plan-canvas" width="800" height="600"></canvas>
+      </div>
+      <div class="controls">
+        <label><input type="checkbox" id="toggle-heat" /> Heatmap</label>
+        <label><input type="checkbox" id="toggle-predict" checked /> Predictions</label>
+        <button id="btn-replay">▶ Replay 10 min</button>
+      </div>
+      <div class="legend">
+        <span><span class="zone required"></span>required zone</span>
+        <span><span class="zone restricted"></span>restricted</span>
+        <span><span class="zone safe"></span>safe</span>
+        <span><span class="dot ok"></span>tracked person</span>
+        <span><span class="dot alert"></span>alerted person</span>
+        <span><span class="pred"></span>predicted path (dashed)</span>
+      </div>
+    </section>
+
+    <aside>
+      <section>
+        <h2>Cameras</h2>
+        <div id="camera-grid"></div>
+      </section>
+      <section>
+        <h2>Events &amp; Alerts</h2>
+        <ul id="event-feed"><li class="muted">Waiting for events…</li></ul>
+      </section>
+    </aside>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

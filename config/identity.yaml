@@ -1,0 +1,17 @@
+# Face Recognition / Identity Configuration
+# Phase 11: hardware-agnostic, opt-in.
+#
+# Privacy: biometric templates are stored locally in data/identities/ and are
+# never transmitted. Review GDPR/BIPA obligations before enabling.
+
+face_recognition:
+  enabled: false               # OFF until an operator explicitly opts in
+  match_threshold: 0.363       # cosine distance; OpenCV SFace reference point
+  sample_every_n_frames: 10    # face-sample one track every N frames (CPU budget)
+  min_face_size_px: 40         # ignore smaller detections
+  strict_unknown_roles: false  # if true, unrecognized people get NO roles and
+                               # are barred from role-gated zones
+  store_dir: data/identities
+
+models:
+  dir: src/models/face         # YuNet (~350KB) + SFace (~37MB) ONNX auto-download

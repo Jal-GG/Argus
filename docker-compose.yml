@@ -1,0 +1,68 @@
+# Surveillance System — Docker Compose
+#
+#   CPU:    docker compose up --build
+#   GPU:    docker compose --profile gpu up --build
+#
+# Config/data are volume-mounted so you can edit zones/cameras without
+# rebuilding the image.
+
+services:
+  surveillance:
+    build: .
+    image: surveillance-system:latest
+    container_name: surveillance
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+    environment:
+      LOG_LEVEL: INFO
+      # Single-video demo source (overrides config/cameras.yaml):
+      # SURVEILLANCE_SOURCE: /app/data/videos/vtest.avi
+      # SURVEILLANCE_DEVICE: cpu
+      # SURVEILLANCE_MODEL: yolo11n.pt
+    devices:
+      # Uncomment for USB cameras:
+      # - /dev/video0:/dev/video0
+    command: ["--host", "0.0.0.0", "--port", "8000", "--device", "cpu"]
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4).status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+
+  # Optional Prometheus/GPU stack — enable with `--profile gpu` or `--profile monitoring`.
+  gpu-surveillance:
+    profiles: ["gpu"]
+    extends:
+      service: surveillance
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: ["--host", "0.0.0.0", "--port", "8000", "--device", "cuda"]
+
+  prometheus:
+    profiles: ["monitoring"]
+    image: prom/prometheus:latest
+    container_name: surveillance-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./ops/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    profiles: ["monitoring"]
+    image: grafana/grafana:latest
+    container_name: surveillance-grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus

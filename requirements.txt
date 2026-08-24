@@ -1,83 +1,60 @@
 # Core Deep Learning & Computer Vision
-torch>=2.0.0
-torchvision>=0.15.0
-opencv-python>=4.8.0
-opencv-contrib-python>=4.8.0
-numpy>=1.24.0
-scipy>=1.10.0
+# Python 3.10-3.12 recommended (3.8 is EOL)
+torch>=2.2.0
+torchvision>=0.17.0
+opencv-python>=4.9.0
+numpy>=1.26.0
+scipy>=1.12.0          # Hungarian association for BYTE tracker
 
 # Object Detection & Tracking
-ultralytics>=8.0.0  # YOLOv8/v9
-deep-sort-realtime>=1.3.2
+ultralytics>=8.2.0     # YOLO11/12 + built-in ByteTrack/BoT-SORT reference configs
+# deep-sort-realtime removed: in-repo BYTE two-stage tracker (src/core/tracking)
 
-# Person Re-Identification
-torchreid>=0.2.5
-# Or use FastReID:
-# git+https://github.com/JDAI-CV/fast-reid.git
+# Person Re-Identification (optional extras)
+# torchreid            # OSNet embedder; enable when GPU workflow is needed
+# open_clip_torch      # CLIP-ReID style embeddings
 
 # Image Processing
-Pillow>=10.0.0
-imageio>=2.31.0
-scikit-image>=0.21.0
+Pillow>=10.2.0
 
 # Web Framework & API
-fastapi>=0.100.0
-uvicorn[standard]>=0.23.0
-websockets>=11.0
-python-multipart>=0.0.6
-jinja2>=3.1.2
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+websockets>=12.0
+python-multipart>=0.0.9
+jinja2>=3.1.3
 
-# Database
-sqlalchemy>=2.0.0
-alembic>=1.11.0
-psycopg2-binary>=2.9.0  # PostgreSQL
-# Or use SQLite (built-in)
-
-# Caching
-redis>=4.6.0
-hiredis>=2.2.0
+# Database (SQLite default; swap psycopg2 for PostgreSQL deployments)
+sqlalchemy>=2.0.25
 
 # Configuration
-pyyaml>=6.0
-python-dotenv>=1.0.0
-pydantic>=2.0.0
-pydantic-settings>=2.0.0
+pyyaml>=6.0.1
+python-dotenv>=1.0.1
+pydantic>=2.6.0
+pydantic-settings>=2.2.0
 
-# Alerts & Notifications
-twilio>=8.5.0  # SMS
-requests>=2.31.0  # Webhooks
-python-telegram-bot>=20.0  # Telegram
+# Alerts & Notifications (optional channels)
+requests>=2.31.0       # webhooks
+# twilio>=8.10.0       # SMS
+# python-telegram-bot>=21.0
 
 # Utilities
-tqdm>=4.65.0
-loguru>=0.7.0
-python-dateutil>=2.8.2
+tqdm>=4.66.0
+psutil>=5.9.8
 
-# Monitoring & Performance
-prometheus-client>=0.17.0
-psutil>=5.9.0
+# Monitoring (optional; /metrics degrades to JSON without it)
+prometheus-client>=0.20.0
 
 # Testing
-pytest>=7.4.0
-pytest-asyncio>=0.21.0
+pytest>=8.0.0
 pytest-cov>=4.1.0
-httpx>=0.24.0  # For testing FastAPI
-
-# Optional: GPU Acceleration
-# tensorrt>=8.6.0  # Requires separate installation
-# onnx>=1.14.0
-# onnxruntime-gpu>=1.15.0
-
-# Optional: 3D Visualization
-# plotly>=5.15.0
-# trimesh>=3.23.0
+httpx>=0.27.0          # FastAPI test client
 
 # Development Tools
-black>=23.7.0
-flake8>=6.0.0
-isort>=5.12.0
-mypy>=1.4.0
+ruff>=0.3.0            # lint + format (replaces black/flake8/isort)
+mypy>=1.8.0
 
-# Documentation
-mkdocs>=1.5.0
-mkdocs-material>=9.1.0
+# Optional: GPU acceleration / edge export
+# tensorrt             # requires separate install
+# onnx>=1.15.0
+# onnxruntime-gpu>=1.17.0

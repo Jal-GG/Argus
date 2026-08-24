@@ -1,6 +1,6 @@
 # 🎥 Multi-Camera Person Tracking & Floor-Plan Mapping System
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.x-green.svg)](https://opencv.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-red.svg)](https://pytorch.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -15,8 +15,8 @@ This system replicates **airport-style security tracking** for residential socie
 
 ```
 Camera 1 ──┐
-Camera 2 ──┼──> Person Detection ──> Re-Identification ──> Map Coordinates ──> Path Tracking ──> Alert Engine
-Camera 3 ──┘         (YOLO)           (DeepReID)         (Homography)        (Floor Plan)      (Rules)
+Camera 2 ──┼──> Person Detection ──> Tracking ──> Re-Identification ──> Map Coordinates ──> Path Tracking ──> Alert Engine
+Camera 3 ──┘         (YOLO11)       (BYTE/BoT-SORT)   (OSNet/CLIP-ReID)     (Homography)        (Floor Plan)      (Rules)
 ```
 
 ### What It Does
@@ -57,12 +57,12 @@ Camera 3 ──┘         (YOLO)           (DeepReID)         (Homography)     
 
 ### 🚀 Advanced Features
 - ⚡ Multi-person concurrent tracking
-- ⚡ Face recognition integration
-- ⚡ Path prediction using LSTM
-- ⚡ Anomaly detection
-- ⚡ 3D building visualization
-- ⚡ Heat map generation
-- ⚡ Historical playback
+- ⚡ SQLite trajectory persistence + historical playback (replay in dashboard)
+- ⚡ Traffic heat-maps with time decay
+- ⚡ Path prediction (velocity extrapolation + zone-Markov next-zone)
+- ⚡ Statistical movement anomaly detection (speed/dwell z-scores)
+- 🚧 Face recognition integration (planned — needs insightface)
+- 🚧 3D building visualization (planned)
 
 ---
 
@@ -239,6 +239,19 @@ python scripts/demo.py --video data/videos/sample.mp4
 python src/main.py --config config/cameras.yaml
 ```
 
+### Run Full Stack (Pipeline + API + Dashboard)
+
+```bash
+# Single process: pipeline thread + REST API + WebSocket + web dashboard
+python src/api/main.py --source data/videos/vtest.avi
+
+# Dashboard:  http://127.0.0.1:8000/
+# API docs:   http://127.0.0.1:8000/docs
+```
+
+Key endpoints: `GET /api/health` · `/api/tracks` · `/api/events` ·
+`/api/floorplan/render` · `/api/cameras/{id}/stream` (MJPEG) · `WS /ws`.
+
 ---
 
 ## 📋 Implementation Phases
@@ -265,16 +278,15 @@ This project is designed to be built in **8 progressive phases**:
 ## 🛠️ Technology Stack
 
 ### Computer Vision & ML
-- **Detection**: YOLOv8/v9, Detectron2
-- **Tracking**: DeepSORT, ByteTrack, SORT
-- **Re-ID**: OSNet, FastReID, MGN
-- **Face Recognition**: FaceNet, ArcFace (optional)
+- **Detection**: YOLO11 / YOLO12 (Ultralytics), OpenCV HOG fallback for CPU-only machines
+- **Tracking**: BYTE two-stage association (ByteTrack/BoT-SORT family), in-repo & fully testable
+- **Re-ID**: Pluggable — OSNet (torchreid) or CLIP-ReID when available, color-grid fallback otherwise
+- **Face Recognition**: ArcFace / insightface (optional, Phase 9)
 
 ### Core Libraries
 - **OpenCV**: Image processing & homography
 - **PyTorch**: Deep learning framework
-- **NumPy**: Numerical computations
-- **SciPy**: Spatial algorithms
+- **NumPy / SciPy**: Numerics + Hungarian assignment
 
 ### Backend & API
 - **FastAPI**: REST API server
@@ -289,10 +301,10 @@ This project is designed to be built in **8 progressive phases**:
 - **WebSocket**: Real-time updates
 
 ### DevOps & Deployment
-- **Docker**: Containerization
-- **Docker Compose**: Multi-container orchestration
-- **NVIDIA Docker**: GPU support
-- **Kubernetes**: Production scaling (optional)
+- **Docker / Docker Compose**: CPU default, GPU + monitoring profiles
+- **Prometheus `/metrics`**: frames, events, tracks, camera health
+- **GitHub Actions CI**: ruff lint + pytest matrix (3.11/3.12)
+- **ONNX export**: `scripts/export_model.py` for edge/CPU-optimized inference
 
 ---
 

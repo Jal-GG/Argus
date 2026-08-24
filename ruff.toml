@@ -1,0 +1,23 @@
+# Ruff configuration — lint + import sorting for the surveillance system.
+target-version = "py310"
+line-length = 100
+
+[lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM", "PERF", "RUF"]
+ignore = [
+    "BLE001",  # blind except is intentional: pipeline must survive optional hardware/models
+    "S112",    # try-except-continue around per-camera/per-model failures is by design
+    "RUF012",  # mutable class attrs in test fixtures are fine
+    "PYI034",
+    "PERF203", # try-except inside startup loops around per-camera loading is by design
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["E501", "E402"]
+# Entry-point scripts bootstrap sys.path before project imports.
+"src/main.py" = ["E402"]
+"scripts/*" = ["E402"]
+"tests/conftest.py" = ["E402"]
+
+[format]
+quote-style = "double"
